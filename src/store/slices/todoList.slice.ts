@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { mock } from "../axiosService";
+import axiosService from "../axiosService";
 import { showErrorSnackbar, showSnackbar } from "./snackbar.slice";
 
 export const fetchTodos = createAsyncThunk("todos/fetchTodos", async () => {
   try {
-    const response = await mock.instance.get("/todos");
+    const response = await axiosService.get("/todos");
     return response.data;
   } catch (error) {
     throw error;
@@ -15,25 +15,23 @@ export const addTodo = createAsyncThunk(
   "todos/addTodo",
   async (
     props: {
-      input: string;
-      setInput(value): void;
-      setSubmitting(value): void;
+      id: string;
+      text: string;
     },
     thunkAPI
   ) => {
-    const { input, setInput, setSubmitting } = props;
+    const { id, text } = props;
     try {
-      const response = await mock.post("/addTodo", {
-        input,
+      const response = await axiosService.post("/addTodo", {
+        id,
+        text,
       });
-      setInput("");
-      setSubmitting(false);
       thunkAPI.dispatch(showSnackbar({ text: "Successful add" }));
-      return response.data;
+      return { id, text };
     } catch (error) {
-      setSubmitting(false);
       thunkAPI.dispatch(showErrorSnackbar());
-      throw error;
+      //throw error;
+      return { id, text };
     }
   }
 );
@@ -48,20 +46,21 @@ export const removeTodo = createAsyncThunk(
   ) => {
     const { id } = props;
     try {
-      const response = await mock.post("/removeTodo", {
+      const response = await axiosService.post("/removeTodo", {
         id,
       });
       thunkAPI.dispatch(showSnackbar({ text: "Successful delete" }));
-      return response.data;
+      return { id };
     } catch (error) {
       thunkAPI.dispatch(showErrorSnackbar());
-      throw error;
+      // throw error;
+      return { id };
     }
   }
 );
 
-export const suggestionSlice = createSlice({
-  name: "suggestion",
+export const todoSlice = createSlice({
+  name: "todos",
   initialState: {
     data: [],
     isDataAvailable: false,
@@ -77,15 +76,15 @@ export const suggestionSlice = createSlice({
       state.isDataAvailable = true;
     });
     builder.addCase(removeTodo.fulfilled, (state, action) => {
-      state.data = state.data.filter((todo) => todo._id === action.payload);
+      state.data = state.data.filter((todo) => todo.id !== action.payload?.id);
       state.isDataAvailable = state.data.length !== 0;
     });
   },
 });
 
-export const getTodos = ({ suggestion: { data, isDataAvailable } }) => ({
+export const selectTodos = ({ todos: { data, isDataAvailable } }) => ({
   data,
   isDataAvailable,
 });
 
-export default suggestionSlice.reducer;
+export default todoSlice.reducer;

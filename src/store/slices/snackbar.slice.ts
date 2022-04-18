@@ -6,7 +6,7 @@ const snackbarSlice = createSlice({
   reducers: {
     showErrorSnackbar: (state, action: PayloadAction<string>) => {
       state.visible = true;
-      state.text = action.payload ?? "Váratlan hiba történt.";
+      state.text = action.payload ?? "Unexpected error";
       state.style = { backgroundColor: "tomato" };
     },
     showSnackbar: (state, action) => {

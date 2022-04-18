@@ -1,1 +1,1 @@
-export { store } from './store';
+export { persistor, store } from "./store";
