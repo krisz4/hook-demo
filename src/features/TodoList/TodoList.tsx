@@ -24,15 +24,14 @@ interface Todo {
 
 export default function App() {
   const { eventDispatcher, sessionCounter } = useEventDispatchAndLog();
+  const { data: items, isDataAvailable } = useSelector(selectTodos);
 
+  // keeps track of first initialization of screen. Based on this we can customize the fadeIn animation
   const initialMode = useRef<boolean>(true);
 
   useEffect(() => {
     initialMode.current = false;
   }, []);
-
-  const { data: items, isDataAvailable } = useSelector(selectTodos);
-  console.log(isDataAvailable);
 
   const onAdd = () => {
     const newTodo: Todo = {
@@ -41,8 +40,8 @@ export default function App() {
     };
 
     eventDispatcher({
-      event: {
-        type: "ADD_TODO",
+      eventType: "ADD_TODO",
+      persistConfig: {
         action: addTodo(newTodo),
       },
     });
@@ -50,8 +49,8 @@ export default function App() {
 
   const onDelete = (itemId: string) => {
     eventDispatcher({
-      event: {
-        type: "REMOVE_TODO",
+      eventType: "REMOVE_TODO",
+      persistConfig: {
         action: removeTodo({ id: itemId }),
       },
     });
@@ -80,6 +79,7 @@ export default function App() {
             <Animated.View
               key={item.id}
               entering={
+                // on first render we apply delay for better visuals, but when we add new item we don't need the delay
                 initialMode.current ? FadeIn.delay(100 * index) : FadeIn
               }
               onTouchEnd={() => onDelete(item.id)}
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     marginTop: 1,
+    margin: 8,
   },
   listItem: {
     height: 100,

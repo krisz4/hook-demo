@@ -7,17 +7,20 @@ import { AppDispatch } from "../store/store";
 import { EventLog } from "../store/types/EventData.type";
 
 type UseEventDispatchAndLogParams = {
-  event: {
-    type:
-      | "ADD_TODO"
-      | "ADD_TODO_FAIL"
-      | "REMOVE_TODO"
-      | "REMOVE_TODO_FAIL"
-      | "MANUAL_LOG_SYNC";
-    action?: any;
-    endpoint?: string;
+  eventType:
+    | "ADD_TODO"
+    | "ADD_TODO_FAIL"
+    | "REMOVE_TODO"
+    | "REMOVE_TODO_FAIL"
+    | "MANUAL_LOG_SYNC";
+  persistConfig?: {
+    action: any;
   };
-  persist?: boolean;
+  networkConfig?: {
+    method: "POST" | "GET";
+    endpoint: string;
+    body?: any;
+  };
 };
 
 export const useEventDispatchAndLog = () => {
@@ -28,25 +31,27 @@ export const useEventDispatchAndLog = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const eventDispatcher = ({
-    event,
-    persist = true,
+    eventType,
+    persistConfig,
+    networkConfig,
   }: UseEventDispatchAndLogParams) => {
-    if (event.type) {
+    if (eventType) {
       // log event
-      console.log("start log for", event.type);
       const log: EventLog = {
         user_id: user.user_id,
         team_id: user.team_id,
-        event: event.type,
+        event: eventType,
         createdAt: new Date().toISOString(),
       };
       dispatch(addLog(log));
 
       // make network request or dispatch action
-      if (persist && event.action) {
-        setTimeout(() => dispatch(event.action), 0);
-      } else if (event.endpoint) {
-        axiosService.post(event.endpoint, {});
+      if (persistConfig) {
+        setTimeout(() => dispatch(persistConfig.action), 0);
+      } else if (networkConfig) {
+        networkConfig.method === "GET"
+          ? axiosService.get(networkConfig.endpoint)
+          : axiosService.post(networkConfig.endpoint, networkConfig.body);
       }
 
       // count events made using this hook instance

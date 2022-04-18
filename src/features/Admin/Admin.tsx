@@ -7,9 +7,9 @@ import {
   syncLogs,
 } from "../../store/slices/eventLogs.slice";
 
+// screen to check logs and sync status
 const Admin = () => {
   const { loggedEvents } = useSelector(selectEventLogsList);
-  console.log(loggedEvents);
   const { eventDispatcher, logCounter } = useEventDispatchAndLog();
 
   return (
@@ -22,7 +22,8 @@ const Admin = () => {
           title="Manual sync"
           onPress={() =>
             eventDispatcher({
-              event: { type: "MANUAL_LOG_SYNC", action: syncLogs() },
+              eventType: "MANUAL_LOG_SYNC",
+              persistConfig: { action: syncLogs() },
             })
           }
         />

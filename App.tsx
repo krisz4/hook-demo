@@ -10,7 +10,6 @@ import { syncLogs } from "./src/store/slices/eventLogs.slice";
 export default function App() {
   // log unsynced events
   useEffect(() => {
-    console.log("sync app.js");
     store.dispatch(syncLogs());
   }, []);
 
