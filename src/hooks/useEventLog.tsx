@@ -47,6 +47,7 @@ export const useEventDispatchAndLog = () => {
 
       // make network request or dispatch action
       if (persistConfig) {
+        // add setTimeout so addLog runs first incase we dispatch to the same slice
         setTimeout(() => dispatch(persistConfig.action), 0);
       } else if (networkConfig) {
         networkConfig.method === "GET"
