@@ -30,7 +30,7 @@ export const addLog = createAsyncThunk(
 );
 
 export const syncLogs = createAsyncThunk("logs/sync", async (_, thunkApi) => {
-  const { eventLogs, user } = thunkApi.getState() as RootState;
+  const { eventLogs } = thunkApi.getState() as RootState;
   const { loggedEvents } = eventLogs;
 
   const eventsAfterSync = loggedEvents?.map(async (event) => {
@@ -54,9 +54,7 @@ export const syncLogs = createAsyncThunk("logs/sync", async (_, thunkApi) => {
   });
 
   const resolvedEvents = await Promise.all(eventsAfterSync);
-
   const notSyncedLogs = resolvedEvents?.filter((event) => !event.synced);
-  console.log("sync2", notSyncedLogs);
 
   return notSyncedLogs;
 });
@@ -75,9 +73,7 @@ export const eventLogsSlice = createSlice({
       state.logCounter = state.logCounter + 1;
     });
     builder.addCase(syncLogs.fulfilled, (state, action) => {
-      console.log("payload", action.payload);
       state.loggedEvents = (action.payload as any) || [];
-      console.log("after sync", state.loggedEvents);
     });
   },
 });
